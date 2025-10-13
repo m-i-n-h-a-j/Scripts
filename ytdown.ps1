@@ -6,7 +6,7 @@ function Option {
     param (
         [string]$optionMessage
     )
-    
+
     $isOption = Read-Host($optionMessage)
     if ($isOption -eq "y" -or $isOption -eq "Y") {
         return 1
@@ -30,6 +30,7 @@ function DownloadAudio {
     if ($AudID -eq "") {
         $AudID = "ba/b"
     }
+
     Clear-Host
 
     yt-dlp.exe -f $AudID --cookies-from-browser firefox `
@@ -71,18 +72,15 @@ function StartDownload {
     param(
         [string]$URL
     )
-   
 
     Clear-Host
 
     yt-dlp.exe -F --cookies-from-browser firefox "$URL"
         
-    if (Option("Download audio only(Y/N)")) {
-        
+    if (Option("Download audio only(Y/N)")) {        
         DownloadAudio($URL)
     }
-    else {
-        
+    else {        
         DownloadVideo($URL)
     }
 }
@@ -101,11 +99,9 @@ function validateURL {
     }
 }
 
-
 Clear-Host
 
 if ($argURL -eq "") {
-
     if (Option("Search on YouTube(Y/N)")) {
         Clear-Host
         $keyword = Read-Host "Search"
@@ -114,20 +110,19 @@ if ($argURL -eq "") {
 
         $lines = & yt-dlp.exe "ytsearch5:$keyword" --cookies-from-browser firefox --skip-download --get-title --get-id
         $printMsg = ""
-        [string[]] $urls = @()     
+        [string[]] $urls = @()
 
         $j = 1
         for ($i = 0; $i -lt $lines.Count; $i += 2) {
             $urls += $lines[$i + 1].Trim()
-              
             $vidName = $lines[$i].Trim()
             $printMsg += "$j - $vidName`n"
             $j++
         }
 
         $urls = $urls | ForEach-Object { "https://youtu.be/$_" }
-        
-        Write-Host $printMsg
+
+        Write-Host $printMsg -ForegroundColor Green
 
         $Vno = [int](Read-Host "Enter the video number")
         if ($Vno -lt 1 -or $Vno -gt $urls.Count) {
