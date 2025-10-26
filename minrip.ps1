@@ -55,21 +55,21 @@ if ([string]::IsNullOrWhiteSpace($fileName)) {
         $scale = ""
 
         if ([string]::IsNullOrWhiteSpace($crop)) {
-            $scale = "scale=${res}:-2,format=yuv420p"
+            $scale = "scale=${res}:-2"
         }
         else {
-            $scale = "crop=${crop},scale=${res}:-2,format=yuv420p"
+            $scale = "crop=${crop},scale=${res}:-2"
         }
 
         $audio = "0:a:" + $audioChannel
 
         Clear-Host
-        Write-Host "Starting MIN-RIP (8-bit, CPU scale, explicit maps)..."
+        Write-Host "Starting MIN-RIP (GPU)..."
 
-        ffmpeg.exe -i "$fileName"  -map 0:v:0 -map "$audio" -vf "$scale" `
-            -c:v hevc_nvenc -preset p7 -rc vbr -cq $quality -tune hq -multipass fullres `
-            -spatial-aq 1 -temporal-aq 1 -aq-strength 8 -rc-lookahead 32 `
-            -c:a libopus -b:a 160k -ac 2 ".\output_nvenc_${quality}_8bit.mkv"
+        ffmpeg.exe -i "$fileName" -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
+            -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
+            -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
+            -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k -ac 2 ".\output_nvenc_${quality}_8bit.mkv"
 
 
     }
@@ -102,12 +102,12 @@ elseif (Option("Use GPU(Y/N)")) {
     $audio = "0:a:" + $audioChannel
 
     Clear-Host
-    Write-Host "Starting MIN-RIP (8-bit, CPU scale, explicit maps)..."
+    Write-Host "Starting MIN-RIP (GPU)..."
 
-    ffmpeg.exe -i "$fileName" -map 0:v:0 -map "$audio" -vf "$scale" `
-        -c:v hevc_nvenc -preset p7 -rc vbr -cq $quality -tune hq -multipass fullres `
-        -spatial-aq 1 -temporal-aq 1 -aq-strength 8 -rc-lookahead 32 `
-        -c:a libopus -b:a 160k -ac 2 ".\output_nvenc_${quality}_8bit.mkv"
+    ffmpeg.exe -i "$fileName" -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
+        -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
+        -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
+        -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k -ac 2 ".\output_nvenc_${quality}_8bit.mkv"
 }
 else {   
     $res = Read-Host "Enter Horizontal Resolution (e.g., 1920 or 1280)"
