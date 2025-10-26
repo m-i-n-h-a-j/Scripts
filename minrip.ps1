@@ -52,6 +52,9 @@ if ([string]::IsNullOrWhiteSpace($fileName)) {
         $crop = Read-Host "Want to crop? 1920:800:0:140"
         $quality = Read-Host "Enter Quality (18, 20, 22, 24, 26, 28)"
         $audioChannel = Read-Host "Enter the audio stream"
+        $start = Read-Host "Start at"
+        $end = Read-Host "End at"
+
         $scale = ""
 
         if ([string]::IsNullOrWhiteSpace($crop)) {
@@ -66,7 +69,7 @@ if ([string]::IsNullOrWhiteSpace($fileName)) {
         Clear-Host
         Write-Host "Starting MIN-RIP (GPU)..."
 
-        ffmpeg.exe -i "$fileName" -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
+        ffmpeg.exe -hide_banner -ss $start -i "$fileName" -to $end -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
             -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
             -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
             -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
@@ -90,14 +93,17 @@ elseif (Option("Use GPU(Y/N)")) {
     $crop = Read-Host "Want to crop? 1920:800:0:140"
     $quality = Read-Host "Enter Quality (18, 20, 22, 24, 26, 28)"
     $audioChannel = Read-Host "Enter the audio stream"
+    $start = Read-Host "Start at"
+    $end = Read-Host "End at"
+
     
     $scale = ""
 
     if ([string]::IsNullOrWhiteSpace($crop)) {
-        $scale = "scale=${res}:-2,format=yuv420p"
+        $scale = "scale=${res}:-2"
     }
     else {
-        $scale = "crop=${crop},scale=${res}:-2,format=yuv420p"
+        $scale = "crop=${crop},scale=${res}:-2"
     }
 
     $audio = "0:a:" + $audioChannel
@@ -105,7 +111,7 @@ elseif (Option("Use GPU(Y/N)")) {
     Clear-Host
     Write-Host "Starting MIN-RIP (GPU)..."
 
-    ffmpeg.exe -i "$fileName" -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
+    ffmpeg.exe -hide_banner -ss $start -i "$fileName" -to $end -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
         -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
         -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
         -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
