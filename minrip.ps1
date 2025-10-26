@@ -70,7 +70,7 @@ if ([string]::IsNullOrWhiteSpace($fileName)) {
             -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
             -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
             -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
-            -ac 2 ".\nvenc_${fileName}_${quality}_10bit.mkv"
+            -ac 2 ".\nvenc_${quality}_10bit.mkv"
 
 
     }
@@ -109,7 +109,7 @@ elseif (Option("Use GPU(Y/N)")) {
         -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
         -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
         -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
-        -ac 2 ".\nvenc_${fileName}_${quality}_10bit.mkv"
+        -ac 2 ".\nvenc_${quality}_10bit.mkv"
 }
 else {   
     $res = Read-Host "Enter Horizontal Resolution (e.g., 1920 or 1280)"
