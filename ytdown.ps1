@@ -34,8 +34,8 @@ function DownloadAudio {
     Clear-Host
 
     yt-dlp.exe -f $AudID --cookies-from-browser firefox `
-        -x --audio-format m4a --audio-quality 0 --embed-thumbnail --add-metadata `
-        -o "%(title)s.%(ext)s" "$URL" `
+        -x --audio-format m4a --audio-quality 0 --embed-thumbnail `
+        --add-metadata -o "%(title)s.%(ext)s" "$URL" `
         --exec 'powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Other\Scripts\tools\change_date.ps1" {}'
 }
 
@@ -108,7 +108,9 @@ if ($argURL -eq "") {
 
         Write-Host "Fetching titles and URLs..."
 
-        $lines = & yt-dlp.exe "ytsearch5:$keyword" --cookies-from-browser firefox --skip-download --get-title --get-id
+        $lines = & yt-dlp.exe "ytsearch5:$keyword" --cookies-from-browser firefox `
+            --skip-download --get-title --get-id
+            
         $printMsg = ""
         [string[]] $urls = @()
 

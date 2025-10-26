@@ -69,7 +69,8 @@ if ([string]::IsNullOrWhiteSpace($fileName)) {
         ffmpeg.exe -i "$fileName" -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
             -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
             -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
-            -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k -ac 2 ".\output_nvenc_${quality}_8bit.mkv"
+            -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
+            -ac 2 ".\nvenc_${fileName}_${quality}_10bit.mkv"
 
 
     }
@@ -107,7 +108,8 @@ elseif (Option("Use GPU(Y/N)")) {
     ffmpeg.exe -i "$fileName" -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
         -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
         -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
-        -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k -ac 2 ".\output_nvenc_${quality}_8bit.mkv"
+        -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
+        -ac 2 ".\nvenc_${fileName}_${quality}_10bit.mkv"
 }
 else {   
     $res = Read-Host "Enter Horizontal Resolution (e.g., 1920 or 1280)"
