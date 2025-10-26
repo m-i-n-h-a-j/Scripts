@@ -69,7 +69,7 @@ if ([string]::IsNullOrWhiteSpace($fileName)) {
         Clear-Host
         Write-Host "Starting MIN-RIP (GPU)..."
 
-        ffmpeg.exe -hide_banner -ss $start -i "$fileName" -to $end -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
+        ffmpeg.exe -hide_banner -i "$fileName" -ss $start -to $end -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
             -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
             -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
             -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
@@ -111,7 +111,7 @@ elseif (Option("Use GPU(Y/N)")) {
     Clear-Host
     Write-Host "Starting MIN-RIP (GPU)..."
 
-    ffmpeg.exe -hide_banner -ss $start -i "$fileName" -to $end -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
+    ffmpeg.exe -hide_banner -i "$fileName" -ss $start -to $end -c:v hevc_nvenc -map 0:v:0 -map "$audio" -vf "$scale" `
         -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
         -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
         -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
