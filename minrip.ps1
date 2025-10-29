@@ -19,7 +19,8 @@ function Start-Rip {
     Write-Host "Starting MIN-RIP..."
 
     ffmpeg.exe -i "$fileName" -map 0:v:0 -vf $scale -c:v libx265 -preset $preset `
-        -x265-params $crf -pix_fmt yuv420p10le -map $audio -c:a aac -b:a 192k -ac 2 ".\output.mkv"
+        -x265-params $crf -pix_fmt yuv420p10le -map $audio -c:a libopus -b:a 128k `
+        -vbr on -application audio -ar 48000 -ac 2  ".\output.mkv"
 }
 
 function Option {
@@ -74,7 +75,7 @@ if ([string]::IsNullOrWhiteSpace($fileName)) {
             -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
             -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
             -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
-            -metadata title="$title" -metadata:s:v title="HEVC-10bit" -metadata:s:a title="OPUS-2CH@128kbps" `
+            -vbr on -application audio -ar 48000 -metadata title="$title" -metadata:s:v title="HEVC-10bit" -metadata:s:a title="OPUS-2CH@128kbps" `
             -ac 2 ".\nvenc_${quality}_10bit.mkv"
 
 
@@ -118,7 +119,7 @@ elseif (Option("Use GPU(Y/N)")) {
         -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
         -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
         -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 128k `
-        -metadata title="$title" -metadata:s:v title="HEVC-10bit" -metadata:s:a title="OPUS-2CH@128kbps" `
+        -vbr on -application audio -ar 48000 -metadata title="$title" -metadata:s:v title="HEVC-10bit" -metadata:s:a title="OPUS-2CH@128kbps" `
         -ac 2 ".\nvenc_${quality}_10bit.mkv"
 }
 else {   
