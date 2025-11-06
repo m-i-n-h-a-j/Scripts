@@ -19,7 +19,7 @@ function Start-CpuRip {
 
     ffmpeg.exe -hide_banner -i "$fileName" -ss $start -to $end -map 0:v:0 `
         -vf $scale -c:v libx265 -preset $preset -x265-params $crf `
-        -pix_fmt yuv420p10le -map $audio -c:a libopus -b:a 160k -sample_fmt s16 `
+        -pix_fmt yuv420p10le -map $audio -c:a libopus -b:a 160k `
         -vbr on -application audio -ar 48000 -ac 2 `
         -metadata title="$title" -metadata:s:v title="HEVC-10bit" `
         -metadata:s:a title="OPUS-2CH - VBR(128kbps)" ".\cpu_${preset}_${quality}_output.mkv"
@@ -41,7 +41,7 @@ function Start-CpuRipAv1 {
 
     ffmpeg -hide_banner -i "$fileName" -ss $start -to $end `
         -map 0:v:0 -c:v libsvtav1 -vf "$scale" -pix_fmt yuv420p10le `
-        -preset -2 -crf $quality -map $audio -c:a libopus -b:a 160k -sample_fmt s16 `
+        -preset -2 -crf $quality -map $audio -c:a libopus -b:a 160k `
         -vbr on -application audio -ar 48000 -ac 2 ".\av1_${quality}_output.mkv"
 }
 
@@ -61,7 +61,7 @@ function Start-GpuRip {
     ffmpeg.exe -hide_banner -i "$fileName" -ss $start -to $end -c:v hevc_nvenc -map 0:v:0 `
         -map "$audio" -vf "$scale" -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
         -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
-        -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 160k -sample_fmt s16 `
+        -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 160k `
         -vbr on -application audio -ar 48000 -metadata title="$title" `
         -metadata:s:v title="HEVC-10bit" -metadata:s:a title="OPUS-2CH - VBR(128kbps)" `
         -ac 2 ".\nvenc_${quality}_10bit.mkv"
