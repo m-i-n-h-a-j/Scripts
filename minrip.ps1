@@ -1,6 +1,17 @@
 param (
     [string]$fileName = ""
 )
+
+function Get-Crop {
+    param (
+        [string]$fileName,
+        [string]$start,
+        [string]$end
+    )
+    ffmpeg.exe -hide_banner -i "$fileName" `
+        -ss $start -to $end -vf "cropdetect=24:16:0" -f null -
+}
+
 function Start-CpuRip {
     param (
         [string]$fileName,
@@ -22,9 +33,8 @@ function Start-CpuRip {
         -pix_fmt yuv420p10le -map $audio -c:a libopus -b:a 160k `
         -vbr on -application audio -ar 48000 -ac 2 `
         -metadata title="$title" -metadata:s:v title="HEVC-10bit" `
-        -metadata:s:a title="OPUS-2CH - VBR(128kbps)" ".\cpu_${preset}_${quality}_output.mkv"
+        -metadata:s:a title="OPUS-2CH - VBR(128kbps)" ".\cpu_${preset}_${scale}_${quality}_output.mkv"
 }
-
 
 function Start-CpuRipAv1 {
     param (
@@ -42,7 +52,7 @@ function Start-CpuRipAv1 {
     ffmpeg -hide_banner -i "$fileName" -ss $start -to $end `
         -map 0:v:0 -c:v libsvtav1 -vf "$scale" -pix_fmt yuv420p10le `
         -preset -2 -crf $quality -map $audio -c:a libopus -b:a 160k `
-        -vbr on -application audio -ar 48000 -ac 2 ".\av1_${quality}_output.mkv"
+        -vbr on -application audio -ar 48000 -ac 2 ".\av1_${scale}_${quality}_output.mkv"
 }
 
 function Start-GpuRip {
@@ -58,21 +68,21 @@ function Start-GpuRip {
     
     Write-Host "Starting MIN-RIP (HW)..."
 
+
     ffmpeg.exe -hide_banner -i "$fileName" -ss $start -to $end -c:v hevc_nvenc -map 0:v:0 `
         -map "$audio" -vf "$scale" -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
         -rc vbr -cq $quality -b:v 0 -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
         -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 160k `
         -vbr on -application audio -ar 48000 -metadata title="$title" `
         -metadata:s:v title="HEVC-10bit" -metadata:s:a title="OPUS-2CH - VBR(128kbps)" `
-        -ac 2 ".\nvenc_${quality}_10bit.mkv"
-
+        -ac 2 ".\gpu_${scale}_${quality}_10bit.mkv"
 } 
 
 function Option {
     param (
         [string]$optionMessage
     )
-    
+
     $isOption = Read-Host($optionMessage)
     if ($isOption -eq "y" -or $isOption -eq "Y") {
         return 1
@@ -129,6 +139,9 @@ elseif (Option("AV1 (Y/N)")) {
     Start-CpuRipAv1 -fileName "$fileName" -scale "$scaleG" `
         -start $startG -end $endG -title $titleG `
         -quality $qualityG -audio $audioG
+}
+elseif (Option("Check Crop Values (Y/N)")) {
+    Get-Crop -fileName "$fileName" -start $startG -end $endG
 }
 else {
     $preset = Read-Host "Enter Preset (ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow)"
