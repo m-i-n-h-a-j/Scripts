@@ -3,7 +3,6 @@ param (
     [string]$URL
 )
 
-# Get the path to this script’s directory
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 $ConfPath = Join-Path $ScriptDir 'aria2.conf'

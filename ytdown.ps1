@@ -60,12 +60,12 @@ function DownloadVideo {
             --write-subs --write-auto-subs --convert-subs srt --sub-lang en `
             --embed-subs --merge-output-format mp4 --embed-thumbnail `
             --embed-metadata --embed-chapters --compat-options no-keep-subs `
-            -o "%(title)s.%(ext)s" "$URL"
+            -o "%(title)s" "$URL"
     }
     else {
         Clear-Host
         yt-dlp.exe -f $VidID+$AudID --cookies-from-browser firefox --merge-output-format mp4 `
-            --embed-thumbnail --embed-metadata --embed-chapters -o "%(title)s.%(ext)s" "$URL"
+            --embed-thumbnail --embed-metadata --embed-chapters -o "%(title)s" "$URL"
     }
 }
 function StartDownload {
