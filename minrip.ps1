@@ -33,7 +33,7 @@ function Start-CpuRip {
         -pix_fmt yuv420p10le -map $audio -c:a libopus -b:a 160k `
         -vbr on -application audio -ar 48000 -ac 2 `
         -metadata title="$title" -metadata:s:v title="HEVC-10bit" `
-        -metadata:s:a title="OPUS-2CH - VBR(128kbps)" ".\cpu_${preset}_${scale}_${quality}_output.mkv"
+        -metadata:s:a title="OPUS-2CH - VBR(128kbps)" ".\cpu_${preset}_${quality}_output.mkv"
 }
 
 function Start-CpuRipAv1 {
@@ -52,7 +52,7 @@ function Start-CpuRipAv1 {
     ffmpeg -hide_banner -i "$fileName" -ss $start -to $end `
         -map 0:v:0 -c:v libsvtav1 -vf "$scale" -pix_fmt yuv420p10le `
         -preset -2 -crf $quality -map $audio -c:a libopus -b:a 160k `
-        -vbr on -application audio -ar 48000 -ac 2 ".\av1_${scale}_${quality}_output.mkv"
+        -vbr on -application audio -ar 48000 -ac 2 ".\av1_${quality}_output.mkv"
 }
 
 function Start-GpuRip {
@@ -75,7 +75,7 @@ function Start-GpuRip {
         -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 160k `
         -vbr on -application audio -ar 48000 -metadata title="$title" `
         -metadata:s:v title="HEVC-10bit" -metadata:s:a title="OPUS-2CH - VBR(128kbps)" `
-        -ac 2 ".\gpu_${scale}_${quality}_10bit.mkv"
+        -ac 2 ".\gpu_${quality}_10bit.mkv"
 } 
 
 function Option {
