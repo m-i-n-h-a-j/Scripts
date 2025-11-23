@@ -5,6 +5,6 @@ Get-ChildItem -Filter *.flac | ForEach-Object {
 
     Write-Host "Converting $inputFile → $output"
 
-    ffmpeg -i "$inputFile" -ar 48000 -ac 2 -c:a libopus -b:a 160k `
+    ffmpeg -i "$inputFile" -ar 48000 -ac 2 -c:a libopus -b:a 192k `
         -vbr on -application audio -map_metadata 0 "$outputName" -y
 }
