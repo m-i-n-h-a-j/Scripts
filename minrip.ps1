@@ -129,7 +129,7 @@ $audioChannelG = Read-Host "Enter the audio stream"
 $startG = Read-Host "Start at"
 $endG = Read-Host "End at"
 $titleG = Read-Host "File name"
-$audioG = "0:a:" + $audioChannelG
+$audioG = "0:a:" + $audioChannelG + "?"
 
 
 if (Option("Use GPU(Y/N)")) {
