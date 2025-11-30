@@ -34,7 +34,7 @@ function DownloadAudio {
     Clear-Host
 
     yt-dlp.exe -f $AudID --cookies-from-browser firefox `
-        -x --audio-format opus --audio-quality 0 --embed-thumbnail `
+        -x --audio-format best --audio-quality 0 --embed-thumbnail `
         --add-metadata -o "%(title)s.%(ext)s" "$URL" `
         --exec 'powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Other\Scripts\tools\change_date.ps1" {}'
 }
