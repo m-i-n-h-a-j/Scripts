@@ -51,8 +51,8 @@ function Start-CpuRipAv1 {
 
     ffmpeg -hide_banner -i "$fileName" -ss $start -to $end `
         -map 0:v:0 -c:v libsvtav1 -vf "$scale" `
-        -svtav1-params "aq-mode=2:enable-qm=1:film-grain=8:fast-decode=1" -pix_fmt yuv420p10le `
-        -preset -2 -crf $quality -map $audio -c:a libopus -b:a 160k `
+        -svtav1-params "aq-mode=1:tune=0:enable-qm=1:film-grain=0" -pix_fmt yuv420p10le `
+        -preset 3 -crf $quality -map $audio -c:a libopus -b:a 160k `
         -vbr on -application audio -ar 48000 -metadata title="$title" `
         -metadata:s:v title="AV1-10bit" `
         -metadata:s:a title="OPUS-2CH - VBR(160kbps)" -ac 2 ".\av1_${quality}_output.mkv"
