@@ -8,8 +8,8 @@ function Get-Crop {
         [string]$start,
         [string]$end
     )
-    ffmpeg.exe -hide_banner -i "$fileName" `
-        -ss $start -to $end -vf "cropdetect=24:16:0" -f null -
+    ffmpeg.exe -hide_banner -ss $start -to $end -i "$fileName" `
+        -vf "cropdetect=24:16:0" -f null -
 }
 
 function Start-CpuRip {
@@ -24,14 +24,14 @@ function Start-CpuRip {
         [string]$audio
     )
 
-    $crf = "crf=$quality:aq-mode=3:aq-strength=1.2:qg-size=16"
+    $params = "crf=$quality:aq-mode=3:aq-strength=1.4:psy-rd=2.2:psy-rdoq=1.3:deblock=0,0:cutree=1:limit-sao=1:rect=1:amp=1:keyint=90:min-keyint=1:bframes=6:b-adapt=2:scenecut=40"
 
     Write-Host "Starting MIN-RIP (SW)..."
 
-    ffmpeg.exe -hide_banner -i "$fileName" -ss $start -to $end -map 0:v:0 `
-        -vf $scale -c:v libx265 -preset $preset -x265-params $crf `
-        -pix_fmt yuv420p10le -map $audio -c:a libopus -b:a 160k `
-        -vbr on -application audio -ar 48000 -ac 2 `
+    ffmpeg.exe -hide_banner -ss $start -to $end -i "$fileName"  -map 0:v:0 `
+        -vf "$scale" -c:v libx265 -preset $preset -x265-params "$params" `
+        -pix_fmt yuv420p10le -map "$audio" -c:a libopus -b:a 160k `
+        -ar 48000 -ac 2 `
         -metadata title="$title" -metadata:s:v title="HEVC-10bit" `
         -metadata:s:a title="OPUS-2CH - VBR(160kbps)" ".\cpu_${preset}_${quality}_output.mkv"
 }
@@ -49,13 +49,15 @@ function Start-CpuRipAv1 {
 
     Write-Host "Starting MIN-RIP (SW - AV1)..."
 
-    ffmpeg -hide_banner -i "$fileName" -ss $start -to $end `
-        -map 0:v:0 -c:v libsvtav1 -vf "$scale" `
-        -svtav1-params "aq-mode=1:tune=0:enable-qm=1:film-grain=0" -pix_fmt yuv420p10le `
-        -preset 3 -crf $quality -map $audio -c:a libopus -b:a 160k `
-        -vbr on -application audio -ar 48000 -metadata title="$title" `
+    ffmpeg -hide_banner -ss $start -to $end -i "$fileName" `
+        -map 0:v:0 -c:v libsvtav1 -vf "$scale" -pix_fmt yuv420p10le `
+        -preset 6 -crf $quality `
+        -svtav1-params "aq-mode=2:tune=2:enable-qm=1:film-grain=0:chroma-mode=1" `
+        -map "$audio" -c:a libopus -b:a 160k -ar 48000 -ac 2 `
+        -metadata title="$title" `
         -metadata:s:v title="AV1-10bit" `
-        -metadata:s:a title="OPUS-2CH - VBR(160kbps)" -ac 2 ".\av1_${quality}_output.mkv"
+        -metadata:s:a title="OPUS-2CH - VBR(160kbps)" `
+        ".\av1_${quality}_output.mkv"
 }
 
 function Start-GpuRip {
@@ -71,13 +73,18 @@ function Start-GpuRip {
     
     Write-Host "Starting MIN-RIP (HW)..."
 
-    ffmpeg.exe -hide_banner -i "$fileName" -ss $start -to $end -c:v hevc_nvenc -map 0:v:0 `
-        -map "$audio" -vf "$scale" -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
-        -rc vbr -cq $quality -rc-lookahead 32 -lookahead_level auto -spatial_aq 1 `
-        -temporal_aq 1 -aq-strength 8 -b_ref_mode each -unidir_b 0 -c:a libopus -b:a 160k `
-        -vbr on -application audio -ar 48000 -metadata title="$title" `
-        -metadata:s:v title="HEVC-10bit" -metadata:s:a title="OPUS-2CH - VBR(160kbps)" `
-        -ac 2 ".\gpu_${quality}_10bit.mkv"
+    ffmpeg.exe -hide_banner -ss $start -to $end -i "$fileName" `
+        -map 0:v:0 -vf "$scale" -c:v hevc_nvenc `
+        -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
+        -rc vbr -cq $quality -b:v 0 -maxrate 999M -bufsize 999M `
+        -rc-lookahead 32 -lookahead_level auto -no-scenecut 1 `
+        -spatial_aq 1 -temporal_aq 1 -aq-strength 4 `
+        -b_ref_mode each -map "$audio" `
+        -c:a libopus -b:a 160k -ar 48000 -ac 2 `
+        -metadata title="$title" `
+        -metadata:s:v title="HEVC-10bit" `
+        -metadata:s:a title="OPUS-2CH - VBR(160kbps)" `
+        ".\gpu_${quality}_10bit.mkv"
 } 
 
 function Option {
@@ -107,7 +114,7 @@ $scaleG = ""
 $resG = Read-Host "Enter Resolution (e.g., 3840, 1920, 1280)"
 $cropG = Read-Host "Want to crop? (e.g., 1920:800:0:140)"
 
-if (Option("Is Horizontal Resolution(Y/N))")) {
+if (Option("Is Horizontal Resolution(Y/N)")) {
     if ([string]::IsNullOrWhiteSpace($cropG)) {
         $scaleG = "scale=${resG}:-2"
     }
