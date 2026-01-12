@@ -24,7 +24,7 @@ function Start-CpuRip {
         [string]$audio
     )
 
-    $params = "crf=$quality:aq-mode=3:aq-strength=1.4:psy-rd=2.2:psy-rdoq=1.3:deblock=0,0:cutree=1:limit-sao=1:rect=1:amp=1:keyint=90:min-keyint=1:bframes=6:b-adapt=2:scenecut=40"
+    $params = "crf=$quality:aq-mode=2:aq-strength=1.0:psy-rd=1.2:psy-rdoq=1.0:deblock=-1,-1:limit-sao=1"
 
     Write-Host "Starting MIN-RIP (SW)..."
 
