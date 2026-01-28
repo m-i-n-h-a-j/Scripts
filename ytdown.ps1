@@ -57,15 +57,15 @@ function DownloadVideo {
     if (Option("Embed sub(Y/N)")) {
         Clear-Host
         yt-dlp.exe -f $VidID+$AudID --cookies-from-browser firefox `
-            --write-subs --write-auto-subs --convert-subs srt --sub-lang en `
+            --write-subs --write-auto-subs --sub-langs "en.*" `
             --embed-subs --merge-output-format mp4 --embed-thumbnail `
-            --embed-metadata --embed-chapters --compat-options no-keep-subs `
-            -o "%(title)s" "$URL"
+            --embed-metadata --embed-chapters --sponsorblock-mark all -o "%(title)s" "$URL"
     }
     else {
         Clear-Host
-        yt-dlp.exe -f $VidID+$AudID --cookies-from-browser firefox --merge-output-format mp4 `
-            --embed-thumbnail --embed-metadata --embed-chapters -o "%(title)s" "$URL"
+        yt-dlp.exe -f $VidID+$AudID --cookies-from-browser firefox `
+            --merge-output-format mp4 --embed-thumbnail --embed-metadata `
+            --embed-chapters --sponsorblock-mark all -o "%(title)s" "$URL"
     }
 }
 function StartDownload {
