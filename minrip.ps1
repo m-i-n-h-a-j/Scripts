@@ -25,7 +25,7 @@ function Start-CpuRip {
     )
 
    
-    $params = "crf=$quality:aq-mode=3:aq-strength=0.8:psy-rd=2.0:psy-rdoq=1.5"
+    $params = "crf=$quality"
 
     Write-Host "Starting MIN-RIP (SW)..."
 
