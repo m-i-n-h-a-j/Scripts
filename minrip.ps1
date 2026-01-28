@@ -24,8 +24,7 @@ function Start-CpuRip {
         [string]$audio
     )
 
-    # $params = "crf=$quality"
-    
+   
     $params = "crf=$quality:aq-mode=3:aq-strength=0.8:psy-rd=2.0:psy-rdoq=1.5"
 
     Write-Host "Starting MIN-RIP (SW)..."
@@ -78,7 +77,7 @@ function Start-GpuRip {
     ffmpeg.exe -hide_banner -ss $start -to $end -i "$fileName" `
         -map 0:v:0 -vf "$scale" -c:v hevc_nvenc `
         -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
-        -rc vbr_hq -cq $quality -b:v 0 `
+        -rc vbr -cq $quality -b:v 0 `
         -rc-lookahead 32 `
         -spatial_aq 1 -temporal_aq 1 -aq-strength 4 `
         -b_ref_mode each -map "$audio" `
