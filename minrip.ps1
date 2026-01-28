@@ -9,7 +9,7 @@ function Get-Crop {
         [string]$end
     )
     ffmpeg.exe -hide_banner -ss $start -to $end -i "$fileName" `
-        -vf "cropdetect=24:16:0" -f null -
+        -vf "cropdetect=30:16:0" -f null -
 }
 
 function Start-CpuRip {
@@ -24,7 +24,9 @@ function Start-CpuRip {
         [string]$audio
     )
 
-    $params = "crf=$quality:aq-mode=2:aq-strength=1.0:psy-rd=1.2:psy-rdoq=1.0:deblock=-1,-1:limit-sao=1"
+    # $params = "crf=$quality"
+    
+    $params = "crf=$quality:aq-mode=3:aq-strength=0.8:psy-rd=2.0:psy-rdoq=1.5"
 
     Write-Host "Starting MIN-RIP (SW)..."
 
@@ -51,8 +53,8 @@ function Start-CpuRipAv1 {
 
     ffmpeg -hide_banner -ss $start -to $end -i "$fileName" `
         -map 0:v:0 -c:v libsvtav1 -vf "$scale" -pix_fmt yuv420p10le `
-        -preset 6 -crf $quality `
-        -svtav1-params "aq-mode=2:tune=2:enable-qm=1:film-grain=0:chroma-mode=1" `
+        -preset 3 -crf $quality `
+        -svtav1-params "aq-mode=2:enable-qm=1" `
         -map "$audio" -c:a libopus -b:a 160k -ar 48000 -ac 2 `
         -metadata title="$title" `
         -metadata:s:v title="AV1-10bit" `
@@ -76,8 +78,8 @@ function Start-GpuRip {
     ffmpeg.exe -hide_banner -ss $start -to $end -i "$fileName" `
         -map 0:v:0 -vf "$scale" -c:v hevc_nvenc `
         -preset p7 -tune uhq -profile:v main10 -pix_fmt p010le `
-        -rc vbr -cq $quality -b:v 0 -maxrate 999M -bufsize 999M `
-        -rc-lookahead 32 -lookahead_level auto -no-scenecut 1 `
+        -rc vbr_hq -cq $quality -b:v 0 `
+        -rc-lookahead 32 `
         -spatial_aq 1 -temporal_aq 1 -aq-strength 4 `
         -b_ref_mode each -map "$audio" `
         -c:a libopus -b:a 160k -ar 48000 -ac 2 `
