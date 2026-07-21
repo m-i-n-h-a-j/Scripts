@@ -33,7 +33,7 @@ function DownloadAudio {
 
     Clear-Host
 
-    yt-dlp.exe -f $AudID --cookies-from-browser firefox `
+    yt-dlp.exe --remote-components ejs:github -f $AudID --cookies-from-browser firefox `
         -x --audio-format best --audio-quality 0 --embed-thumbnail `
         --add-metadata -o "%(title)s.%(ext)s" "$URL" `
         --exec 'powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Other\Scripts\tools\change_date.ps1" {}'
@@ -56,14 +56,14 @@ function DownloadVideo {
 
     if (Option("Embed sub(Y/N)")) {
         Clear-Host
-        yt-dlp.exe -f $VidID+$AudID --cookies-from-browser firefox `
+        yt-dlp.exe --remote-components ejs:github -f $VidID+$AudID --cookies-from-browser firefox `
             --write-subs --write-auto-subs --sub-langs "en.*" `
             --embed-subs --merge-output-format mp4 --embed-thumbnail `
             --embed-metadata --embed-chapters --sponsorblock-mark all -o "%(title)s" "$URL"
     }
     else {
         Clear-Host
-        yt-dlp.exe -f $VidID+$AudID --cookies-from-browser firefox `
+        yt-dlp.exe --remote-components ejs:github -f $VidID+$AudID --cookies-from-browser firefox `
             --merge-output-format mp4 --embed-thumbnail --embed-metadata `
             --embed-chapters --sponsorblock-mark all -o "%(title)s" "$URL"
     }
@@ -75,7 +75,7 @@ function StartDownload {
 
     Clear-Host
 
-    yt-dlp.exe -F --cookies-from-browser firefox "$URL"
+    yt-dlp.exe --remote-components ejs:github -F --cookies-from-browser firefox "$URL"
         
     if (Option("Download audio only(Y/N)")) {        
         DownloadAudio($URL)
@@ -108,7 +108,7 @@ if ($argURL -eq "") {
 
         Write-Host "Fetching titles and URLs..."
 
-        $lines = & yt-dlp.exe "ytsearch5:$keyword" --cookies-from-browser firefox `
+        $lines = & yt-dlp.exe --remote-components ejs:github "ytsearch5:$keyword" --cookies-from-browser firefox `
             --skip-download --get-title --get-id
             
         $printMsg = ""
@@ -135,7 +135,7 @@ if ($argURL -eq "") {
         
         $searchURL = $urls[$Vno - 1]
 
-        yt-dlp.exe -F --cookies-from-browser firefox $searchURL
+        yt-dlp.exe --remote-components ejs:github -F --cookies-from-browser firefox $searchURL
 
         if (Option("Download audio only(Y/N)")) {
             DownloadAudio($searchURL)
