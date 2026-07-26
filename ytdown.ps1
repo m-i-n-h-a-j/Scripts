@@ -25,7 +25,6 @@ function DownloadAudio {
         [string]$URL
     )
 
-    Set-Location ~\Music
     $AudID = Read-Host "Enter the Audio ID"
     if ($AudID -eq "") {
         $AudID = "ba/b"
@@ -33,17 +32,15 @@ function DownloadAudio {
 
     Clear-Host
 
-    yt-dlp.exe --remote-components ejs:github -f $AudID --cookies-from-browser firefox `
-        -x --audio-format best --audio-quality 0 --embed-thumbnail `
-        --add-metadata -o "%(title)s.%(ext)s" "$URL" `
-        --exec 'powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Other\Scripts\tools\change_date.ps1" {}'
+    yt-dlp.exe -f $AudID --cookies-from-browser firefox -N 4 `
+        -P "$HOME\Music" -x --embed-thumbnail `
+        --embed-metadata -o "%(title)s.%(ext)s" "$URL"
 }
 
 function DownloadVideo {
     param (
         [string]$URL
     )
-    Set-Location ~\Downloads
     $VidID = Read-Host "Enter the Video ID"
     if ($VidID -eq "") {
         $VidID = "bv"
@@ -56,16 +53,18 @@ function DownloadVideo {
 
     if (Option("Embed sub(Y/N)")) {
         Clear-Host
-        yt-dlp.exe --remote-components ejs:github -f $VidID+$AudID --cookies-from-browser firefox `
-            --write-subs --write-auto-subs --sub-langs "en.*" `
-            --embed-subs --merge-output-format mp4 --embed-thumbnail `
-            --embed-metadata --embed-chapters --sponsorblock-mark all -o "%(title)s" "$URL"
+        yt-dlp.exe -f $VidID+$AudID --cookies-from-browser firefox -N 4 `
+            -P "$HOME\Downloads" -t mkv `
+            --write-subs --write-auto-subs --sub-langs "en" `
+            --embed-subs --compat-options no-keep-subs `
+            --embed-thumbnail --embed-metadata --embed-chapters `
+            --sponsorblock-mark all -o "%(title)s.%(ext)s" "$URL"
     }
     else {
         Clear-Host
-        yt-dlp.exe --remote-components ejs:github -f $VidID+$AudID --cookies-from-browser firefox `
-            --merge-output-format mp4 --embed-thumbnail --embed-metadata `
-            --embed-chapters --sponsorblock-mark all -o "%(title)s" "$URL"
+        yt-dlp.exe -f $VidID+$AudID --cookies-from-browser firefox -N 4 `
+            -P "$HOME\Downloads" -t mkv --embed-thumbnail --embed-metadata `
+            --embed-chapters --sponsorblock-mark all -o "%(title)s.%(ext)s" "$URL"
     }
 }
 function StartDownload {
@@ -75,7 +74,7 @@ function StartDownload {
 
     Clear-Host
 
-    yt-dlp.exe --remote-components ejs:github -F --cookies-from-browser firefox "$URL"
+    yt-dlp.exe -F --cookies-from-browser firefox "$URL"
         
     if (Option("Download audio only(Y/N)")) {        
         DownloadAudio($URL)
@@ -108,34 +107,40 @@ if ($argURL -eq "") {
 
         Write-Host "Fetching titles and URLs..."
 
-        $lines = & yt-dlp.exe --remote-components ejs:github "ytsearch5:$keyword" --cookies-from-browser firefox `
-            --skip-download --get-title --get-id
-            
+        $lines = & yt-dlp.exe "ytsearch5:$keyword" --cookies-from-browser firefox `
+            --print "%(id)s`t%(title)s"
+
         $printMsg = ""
         [string[]] $urls = @()
 
         $j = 1
-        for ($i = 0; $i -lt $lines.Count; $i += 2) {
-            $urls += $lines[$i + 1].Trim()
-            $vidName = $lines[$i].Trim()
+        foreach ($line in $lines) {
+            if ([string]::IsNullOrWhiteSpace($line)) { continue }
+            $id, $vidName = ($line -split "`t", 2)
+            $urls += "https://youtu.be/$id"
             $printMsg += "$j - $vidName`n"
             $j++
         }
 
-        $urls = $urls | ForEach-Object { "https://youtu.be/$_" }
+        if ($urls.Count -eq 0) {
+            Write-Host "No results found for '$keyword'." -ForegroundColor Red
+            exit 1
+        }
 
         Write-Host $printMsg -ForegroundColor Green
 
-        $Vno = [int](Read-Host "Enter the video number")
-        if ($Vno -lt 1 -or $Vno -gt $urls.Count) {
+        $Vno = 0
+        while ($true) {
+            $choice = Read-Host "Enter the video number"
+            if ([int]::TryParse($choice, [ref]$Vno) -and $Vno -ge 1 -and $Vno -le $urls.Count) {
+                break
+            }
             Write-Host "❌ Invalid selection. Please pick a number between 1 and $($urls.Count)." -ForegroundColor Red
-            $Vno = [int](Read-Host "Enter the video number")
         }
-          
-        
+
         $searchURL = $urls[$Vno - 1]
 
-        yt-dlp.exe --remote-components ejs:github -F --cookies-from-browser firefox $searchURL
+        yt-dlp.exe -F --cookies-from-browser firefox $searchURL
 
         if (Option("Download audio only(Y/N)")) {
             DownloadAudio($searchURL)
